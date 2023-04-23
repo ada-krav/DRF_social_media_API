@@ -63,9 +63,7 @@ class User(AbstractUser):
 
 class UserProfile(models.Model):
     owner = models.OneToOneField(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name="profile"
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="profile"
     )
     username = models.CharField(max_length=63, unique=True)
     profile_picture = models.ImageField(null=True, upload_to=profile_picture_file_path)

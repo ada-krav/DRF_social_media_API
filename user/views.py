@@ -92,14 +92,13 @@ class UserProfileViewSet(
                 "username",
                 type=str,
                 description="Filter by username that contains specified symbol(s), "
-                            "case insensitive (ex. ?username=oo)"
-
+                "case insensitive (ex. ?username=oo)",
             ),
             OpenApiParameter(
                 "bio",
                 type=str,
                 description="Filter by bio that contains specified symbol(s), "
-                            "case insensitive (ex. ?bio=oo)"
+                "case insensitive (ex. ?bio=oo)",
             ),
         ]
     )

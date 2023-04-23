@@ -30,7 +30,10 @@ class PostPagination(PageNumberPagination):
 
 class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all().prefetch_related("hashtags")
-    permission_classes = (IsAuthenticated, IsTheUserOrReadOnly,)
+    permission_classes = (
+        IsAuthenticated,
+        IsTheUserOrReadOnly,
+    )
     pagination_class = PostPagination
 
     @staticmethod
@@ -53,7 +56,7 @@ class PostViewSet(viewsets.ModelViewSet):
 
         if hashtags:
             hashtags_ids = self._params_to_ints(hashtags)
-            queryset = (queryset.filter(hashtags__id__in=hashtags_ids))
+            queryset = queryset.filter(hashtags__id__in=hashtags_ids)
 
         return queryset.distinct()
 
@@ -71,8 +74,7 @@ class PostViewSet(viewsets.ModelViewSet):
                 "hashtag",
                 type=str,
                 description="Filter by hashtag that contains specified symbol(s), "
-                            "case insensitive (ex. ?hashtag=oo)"
-
+                "case insensitive (ex. ?hashtag=oo)",
             ),
             OpenApiParameter(
                 "hashtags",
