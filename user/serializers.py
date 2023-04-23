@@ -61,15 +61,19 @@ class UserListSerializer(serializers.ModelSerializer):
 
 
 class UserProfileListSerializer(serializers.ModelSerializer):
+    owner_email = serializers.EmailField(source="owner.email", read_only=True)
+
     class Meta:
         model = UserProfile
         fields = (
             "id",
             "owner",
+            "owner_email",
             "username",
             "profile_picture",
             "bio",
         )
+        read_only_fields = ("id", "owner")
 
 
 class UserProfileDetailSerializer(UserProfileListSerializer):

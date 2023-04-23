@@ -33,7 +33,7 @@ class ManageUserView(generics.RetrieveUpdateAPIView):
 class UserProfileViewSet(
     viewsets.ModelViewSet,
 ):
-    queryset = UserProfile.objects.all()
+    queryset = UserProfile.objects.all().select_related("owner")
     permission_classes = (IsAuthenticated, IsTheUserOrReadOnly)
 
     def get_queryset(self):
@@ -51,9 +51,9 @@ class UserProfileViewSet(
 
     def get_serializer_class(self):
         if self.action == "retrieve":
-            return UserProfileListSerializer
+            return UserProfileDetailSerializer
 
-        return UserProfileDetailSerializer
+        return UserProfileListSerializer
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
