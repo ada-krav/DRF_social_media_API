@@ -1,3 +1,4 @@
+from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import mixins, viewsets
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
@@ -38,16 +39,21 @@ class PostViewSet(viewsets.ModelViewSet):
         return [int(str_id) for str_id in qs.split(",")]
 
     def get_queryset(self):
-        favorite_people_list = self.request.user.profile.following.all()
+        following_list = self.request.user.profile.following.all()
 
         queryset = self.queryset.filter(
-            owner__in=list(favorite_people_list) + [self.request.user.id]
+            owner__in=list(following_list) + [self.request.user.id]
         )
 
-        hashtag = self.request.query_params.get("hashtags")
+        hashtag = self.request.query_params.get("hashtag")
+        hashtags = self.request.query_params.get("hashtags")
 
         if hashtag:
             queryset = queryset.filter(hashtags__name__icontains=hashtag)
+
+        if hashtags:
+            hashtags_ids = self._params_to_ints(hashtags)
+            queryset = (queryset.filter(hashtags__id__in=hashtags_ids))
 
         return queryset.distinct()
 
@@ -58,3 +64,22 @@ class PostViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
+
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                "hashtag",
+                type=str,
+                description="Filter by hashtag that contains specified symbol(s), "
+                            "case insensitive (ex. ?hashtag=oo)"
+
+            ),
+            OpenApiParameter(
+                "hashtags",
+                type={"type": "list", "items": {"type": "number"}},
+                description="Filter by hashtags id (ex. ?hashtags=2,5)",
+            ),
+        ]
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)

@@ -85,3 +85,23 @@ class UserProfileViewSet(
             return Response(status=status.HTTP_200_OK)
 
         return Response(status=status.HTTP_403_FORBIDDEN)
+
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                "username",
+                type=str,
+                description="Filter by username that contains specified symbol(s), "
+                            "case insensitive (ex. ?username=oo)"
+
+            ),
+            OpenApiParameter(
+                "bio",
+                type=str,
+                description="Filter by bio that contains specified symbol(s), "
+                            "case insensitive (ex. ?bio=oo)"
+            ),
+        ]
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
