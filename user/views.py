@@ -1,6 +1,12 @@
-from rest_framework import generics, viewsets
+from django.contrib.auth import get_user_model
+from django.db import transaction
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema, OpenApiParameter
+from rest_framework import generics, viewsets, status
+from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.response import Response
 from rest_framework.settings import api_settings
 
 from .models import UserProfile
@@ -33,7 +39,7 @@ class ManageUserView(generics.RetrieveUpdateAPIView):
 class UserProfileViewSet(
     viewsets.ModelViewSet,
 ):
-    queryset = UserProfile.objects.all().select_related("owner")
+    queryset = UserProfile.objects.all()
     permission_classes = (IsAuthenticated, IsTheUserOrReadOnly)
 
     def get_queryset(self):
@@ -57,3 +63,25 @@ class UserProfileViewSet(
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
+
+    @action(methods=["GET"], detail=True, url_path="un-follow")
+    def un_follow_user(self, request, pk=None):
+        user = get_user_model().objects.get(id=request.user.id)
+        other = get_user_model().objects.get(id=pk)
+        if user != other:
+            if user in other.profile.followers.all():
+                with transaction.atomic():
+                    other.profile.followers.remove(user.id)
+                    user.profile.following.remove(other.id)
+                    other.save()
+                    user.save()
+            else:
+                with transaction.atomic():
+                    other.profile.followers.add(user.id)
+                    user.profile.following.add(other.id)
+                    other.save()
+                    user.save()
+
+            return Response(status=status.HTTP_200_OK)
+
+        return Response(status=status.HTTP_403_FORBIDDEN)

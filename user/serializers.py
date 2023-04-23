@@ -77,7 +77,5 @@ class UserProfileListSerializer(serializers.ModelSerializer):
 
 
 class UserProfileDetailSerializer(UserProfileListSerializer):
-    favorite_people = UserListSerializer(many=True, read_only=True)
-
     class Meta(UserProfileListSerializer.Meta):
-        fields = UserProfileListSerializer.Meta.fields + ("favorite_people",)
+        fields = UserProfileListSerializer.Meta.fields + ("following", "followers")

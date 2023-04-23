@@ -1,5 +1,6 @@
 from rest_framework import mixins, viewsets
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import GenericViewSet
 
 from social_media.models import Hashtag, Post
@@ -17,6 +18,7 @@ class HashtagViewSet(
     GenericViewSet,
 ):
     queryset = Hashtag.objects.all()
+    permission_classes = (IsAuthenticated,)
     serializer_class = HashtagSerializer
 
 
@@ -27,7 +29,7 @@ class PostPagination(PageNumberPagination):
 
 class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all().prefetch_related("hashtags")
-    permission_classes = (IsTheUserOrReadOnly,)
+    permission_classes = (IsAuthenticated, IsTheUserOrReadOnly,)
     pagination_class = PostPagination
 
     @staticmethod
@@ -36,7 +38,7 @@ class PostViewSet(viewsets.ModelViewSet):
         return [int(str_id) for str_id in qs.split(",")]
 
     def get_queryset(self):
-        favorite_people_list = self.request.user.profile.favorite_people.all()
+        favorite_people_list = self.request.user.profile.following.all()
 
         queryset = self.queryset.filter(
             owner__in=list(favorite_people_list) + [self.request.user.id]
