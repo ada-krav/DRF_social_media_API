@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     "debug_toolbar",
     "social_media",
     "user",
+    "drf_spectacular",
 ]
 
 MIDDLEWARE = [

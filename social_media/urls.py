@@ -4,7 +4,7 @@ from rest_framework import routers
 from social_media.views import HashtagViewSet, PostViewSet
 
 router = routers.DefaultRouter()
-router.register("genres", HashtagViewSet)
+router.register("hashtags", HashtagViewSet)
 router.register("posts", PostViewSet)
 
 urlpatterns = [path("", include(router.urls))]
